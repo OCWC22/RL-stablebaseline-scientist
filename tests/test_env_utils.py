@@ -51,9 +51,9 @@ def test_make_cartpole_vec_env(n_envs, use_subproc, expected_class):
     assert obs.shape == (n_envs, 4)
     assert rewards.shape == (n_envs,)
     assert dones.shape == (n_envs,)
-    # infos is a list of dicts, one per env
-    assert isinstance(infos, list)
+    # infos is a list or tuple of dicts, one per env
+    # In newer SB3 versions (2.6.0+), infos is a tuple rather than a list
+    assert isinstance(infos, (list, tuple))
     assert len(infos) == n_envs
 
     env.close()
-

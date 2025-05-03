@@ -43,3 +43,24 @@ To provide clear documentation for users on how to set up, run, and test the pro
 ### Future Work:
 - Fill in repository URL once available.
 - Keep README updated as scripts and functionality are implemented.
+
+## 05-03-2025 - Fixed Environment Setup and Tests
+
+### Files Updated:
+- `/Users/chen/Projects/RL-stablebaseline-scientist/tests/test_env_utils.py`: Updated test assertions to handle API changes in Stable Baselines3 v2.6.0
+
+### Description:
+Fixed compatibility issues with the test suite by creating a dedicated virtual environment and updating test assertions to handle both list and tuple return types for `infos` in the vectorized environment step method.
+
+### Reasoning:
+Stable Baselines3 v2.6.0 changed the return type of `infos` from a list to a tuple in the `step()` method of vectorized environments. The test was updated to accept both formats for better compatibility across versions.
+
+### Trade-offs:
+- The test is now more flexible but slightly less strict about the exact return type.
+
+### Considerations:
+- Using an isolated virtual environment avoids conflicts with system-wide packages like `langchain_openai` and `deepeval` that were causing Pydantic version conflicts.
+
+### Future Work:
+- Update requirements.txt to specify exact version constraints for all dependencies.
+- Consider adding version-specific test branches if more API differences are discovered.
