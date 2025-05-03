@@ -26,6 +26,7 @@ Based on the plan outlined in `prd.md`.
 ├── requirements.txt    # Project dependencies
 ├── prd.md              # Project plan and details
 ├── coding_updates_1.md # Log of code changes
+├── setup_and_test_guide.md # Detailed setup and testing instructions
 └── README.md           # This file
 ```
 
@@ -37,16 +38,18 @@ Based on the plan outlined in `prd.md`.
     cd RL-stablebaseline-scientist
     ```
 
-2.  **Create and activate a virtual environment (optional but recommended):**
+2.  **Create and activate a virtual environment:**
     ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+    python -m venv .venv-sb3
+    source .venv-sb3/bin/activate  # On Windows use `.venv-sb3\Scripts\activate`
     ```
 
-3.  **Install dependencies using `uv`:**
+3.  **Install dependencies:**
     ```bash
-    uv pip install -r requirements.txt
+    python -m pip install -r requirements.txt
     ```
+
+    For detailed setup instructions, see [setup_and_test_guide.md](setup_and_test_guide.md).
 
 ## Usage
 
@@ -96,7 +99,28 @@ Navigate to `http://localhost:6006/` in your browser.
 Run the test suite using pytest:
 
 ```bash
-pytest tests/
+python -m pytest tests/
 ```
 
-This will execute all tests defined in the `tests/` directory, verifying environment utilities, training script execution, model loading/prediction, and evaluation script functionality.
+For verbose output:
+
+```bash
+python -m pytest tests/ -v
+```
+
+To run specific test categories:
+
+```bash
+# Environment utilities
+python -m pytest tests/test_env_utils.py -v
+
+# Algorithm-specific tests
+python -m pytest tests/test_ppo_training.py -v
+python -m pytest tests/test_a2c_training.py -v
+python -m pytest tests/test_dqn_training.py -v
+
+# Evaluation tests
+python -m pytest tests/test_evaluate_agent.py -v
+```
+
+For a detailed breakdown of all tests and common troubleshooting, see [setup_and_test_guide.md](setup_and_test_guide.md).
