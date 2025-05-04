@@ -29,9 +29,6 @@ def load_performance_data_from_md():
     try:
         comparison_path = os.path.join(os.path.dirname(__file__), 'algorithm_comparison.md')
         
-        if not os.path.exists(comparison_path):
-            st.error(f"Could not find algorithm_comparison.md at {comparison_path}")
-            return pd.DataFrame()
             
         with open(comparison_path, 'r') as f:
             content = f.read()
