@@ -40,7 +40,6 @@ def load_performance_data_from_md():
         table_matches = re.findall(table_pattern, content)
         
         if not table_matches:
-            st.warning("Could not find performance tables in algorithm_comparison.md")
             # Fall back to hardcoded data
             return load_hardcoded_data()
         
@@ -52,7 +51,6 @@ def load_performance_data_from_md():
                 break
         
         if not metrics_table:
-            st.warning("Could not find performance metrics table in algorithm_comparison.md")
             return load_hardcoded_data()
         
         # Parse table rows
@@ -140,9 +138,6 @@ def load_model_based_explanation():
     try:
         explanation_path = os.path.join(os.path.dirname(__file__), 'model_based_rl_explained.md')
         
-        if not os.path.exists(explanation_path):
-            return "Could not find model_based_rl_explained.md"
-            
         with open(explanation_path, 'r') as f:
             content = f.read()
             
