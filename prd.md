@@ -1,6 +1,6 @@
 # Project Plan: Stable Baselines3 RL Algorithm Implementation (PPO, A2C, DQN)
 
-**Goal:** Implement PPO, A2C, and DQN algorithms using Stable Baselines3 for the CartPole-v1 environment, ensuring research-grade reliability, correctness, and testability through specific code examples and Test-Driven Development (TDD).
+**Goal:** Implement PPO, A2C, and DQN algorithms using Stable Baselines3 for the CartPole-v1 environment, ensuring research-grade reliability, correctness, and testability through specific code examples and Test-Driven Development (TDD). Additionally, implement a Model-Based PPO algorithm with adaptive imagination as described in the pseudocode.
 
 ## Implementation Status (05-03-2025)
 
@@ -59,11 +59,21 @@
   - [x] DQN training tests
   - [x] Evaluation script tests
 
-#### Phase 5: Documentation
-- [x] **Task 5.1: Create Documentation**
-  - [x] Update README.md with setup and usage instructions
-  - [x] Create detailed setup and testing guide
-  - [x] Document code changes in coding_updates_1.md
+#### Phase 5: Advanced Algorithm Implementation
+- [x] **Task 5.1: Create Model-Based PPO Skeleton Implementation**
+  - [x] Create component files in `src/components/`
+    - [x] `networks.py`: Dummy policy/value network
+    - [x] `world_model.py`: Dummy world model
+    - [x] `curiosity.py`: Dummy curiosity module
+    - [x] `buffer.py`: Dummy rollout buffer
+  - [x] Implement skeleton training script in `scripts/train_mbppo_skeleton.py`
+  - [x] Verify skeleton implementation works correctly
+
+- [ ] **Task 5.2: Implement Full Model-Based PPO**
+  - [ ] Replace dummy components with actual neural networks
+  - [ ] Implement proper optimization logic
+  - [ ] Add tests for the Model-Based PPO implementation
+  - [ ] Benchmark against standard PPO
 
 #### Phase 6: Hyperparameter Tuning
 - [x] **Task 6.1: Implement Hyperparameter Tuning**
@@ -97,6 +107,30 @@
   - [ ] Set up continuous integration
   - [ ] Implement automated testing pipeline
   - [ ] Create deployment workflow
+
+## Model-Based PPO with Adaptive Imagination
+
+The Model-Based PPO algorithm combines the strengths of PPO with a learned world model and adaptive imagination to improve sample efficiency. The algorithm follows these key steps:
+
+1. **Collect Real Experience**: Gather transitions from the actual environment using the current policy.
+
+2. **Train World Model**: Learn to predict the next state, reward, and done flag based on the current state and action.
+
+3. **Adaptive Imagination**: Generate imagined rollouts using the world model, with the number of rollouts adapted based on the model's confidence.
+
+4. **Policy Update**: Update the policy using both real and imagined data with PPO-style optimization.
+
+5. **Curiosity Module**: Optionally provide intrinsic rewards to encourage exploration of uncertain states.
+
+The skeleton implementation demonstrates the structure and flow of the algorithm without implementing the actual neural networks. This serves as a foundation for the full implementation.
+
+### Implementation Details
+
+- **World Model**: Predicts the next state, reward, and done flag based on the current state and action.
+- **Confidence Calculation**: Uses the exponential of the negative loss to calculate confidence.
+- **Adaptive Rollouts**: Interpolates between min and max rollouts based on confidence.
+- **Mixed Buffer**: Stores both real and imagined transitions for policy updates.
+- **Curiosity Weight Adaptation**: Adjusts the weight of intrinsic rewards based on the trend of external rewards.
 
 ## Detailed Implementation
 

@@ -120,8 +120,8 @@ May 3, 2025 v15: Model-Based Planning with Adaptive Imagination
 
 
 
-## Questions
-Integrating this into the existing Stable Baselines3 setup requires careful consideration because it's not a standard SB3 algorithm. Here are my initial thoughts and questions to clarify the implementation goals:
+
+ntegrating this into the existing Stable Baselines3 setup requires careful consideration because it's not a standard SB3 algorithm. Here are my initial thoughts and questions to clarify the implementation goals:
 
 Core Algorithm Integration:
 

@@ -1,6 +1,6 @@
 # AI Co-Scientist RL Benchmarking (Stable Baselines3)
 
-This project implements and benchmarks standard Reinforcement Learning algorithms (PPO, A2C, DQN) on the CartPole-v1 environment using the Stable Baselines3 library. The goal is to establish reliable and well-tested implementations as a foundation.
+This project implements and benchmarks standard Reinforcement Learning algorithms (PPO, A2C, DQN) on the CartPole-v1 environment using the Stable Baselines3 library. The goal is to establish reliable and well-tested implementations as a foundation. Additionally, the project now includes a skeleton implementation of a Model-Based PPO algorithm with adaptive imagination.
 
 Based on the plan outlined in `prd.md`.
 
@@ -10,26 +10,33 @@ Based on the plan outlined in `prd.md`.
 /
 ├── src/                # Core logic (e.g., environment utilities)
 │   ├── __init__.py
-│   └── env_utils.py
+│   ├── env_utils.py
+│   └── components/     # Components for Model-Based PPO
+│       ├── buffer.py   # Rollout buffer for real and imagined transitions
+│       ├── curiosity.py # Curiosity module for intrinsic rewards
+│       ├── networks.py # Policy and value networks
+│       └── world_model.py # World model for predicting next states
 ├── tests/              # Pytest unit and integration tests
 │   ├── __init__.py
 │   └── test_env_utils.py
 │   └── ... (test_ppo_training.py, etc.)
 ├── scripts/            # Training and evaluation scripts
 │   ├── __init__.py
-│   └── train_ppo.py
-│   └── train_a2c.py
-│   └── train_dqn.py
-│   └── evaluate_agent.py
-│   └── tune_rl.py
-│   └── tune_ppo.py
-│   └── tune_a2c.py
+│   ├── train_ppo.py
+│   ├── train_a2c.py
+│   ├── train_dqn.py
+│   ├── train_mbppo_skeleton.py # Model-Based PPO skeleton implementation
+│   ├── evaluate_agent.py
+│   ├── tune_rl.py
+│   ├── tune_ppo.py
+│   ├── tune_a2c.py
 │   └── tune_dqn.py
 ├── models/             # Saved model checkpoints (.zip)
 ├── logs/               # TensorBoard logs
 ├── tuning_results/     # Hyperparameter tuning results
 ├── requirements.txt    # Project dependencies
 ├── prd.md              # Project plan and details
+├── pseudocode.md       # Pseudocode for Model-Based PPO
 ├── coding_updates_1.md # Log of code changes
 ├── setup_and_test_guide.md # Detailed setup and testing instructions
 └── README.md           # This file
@@ -98,6 +105,38 @@ Launch TensorBoard to view training progress:
 tensorboard --logdir logs/
 ```
 Navigate to `http://localhost:6006/` in your browser.
+
+### Model-Based PPO with Adaptive Imagination
+
+The project includes a skeleton implementation of a Model-Based PPO algorithm with adaptive imagination, based on the pseudocode in `pseudocode.md`. This implementation demonstrates the structure and flow of the algorithm without implementing the actual neural networks.
+
+```bash
+# Run the Model-Based PPO skeleton implementation
+python scripts/train_mbppo_skeleton.py --total-timesteps 5000
+```
+
+#### What is Model-Based PPO?
+
+Unlike standard PPO (which is model-free), Model-Based PPO combines:
+
+1. **A world model** that learns to predict the next state, reward, and done flag based on the current state and action
+2. **A policy/value network** (similar to standard PPO) that decides which actions to take
+3. **Adaptive imagination** that generates synthetic experience using the world model
+
+This approach can be more sample-efficient than standard model-free methods because it leverages the world model to generate additional training data without requiring real environment interactions.
+
+The key innovation in this implementation is the adaptive nature of the imagination process - the number of imagined rollouts scales with the world model's confidence. As the model becomes more accurate, it's trusted for more planning steps.
+
+See `model_based_rl_explained.md` for a comprehensive explanation of model-based reinforcement learning and this specific algorithm.
+
+The skeleton implementation includes:
+- Policy/value networks (dummy implementation)
+- World model for predicting next states (dummy implementation)
+- Curiosity module for intrinsic rewards (dummy implementation)
+- Rollout buffer for storing both real and imagined transitions
+- Adaptive imagination based on world model confidence
+
+This serves as a foundation for implementing the full algorithm with actual neural networks and optimization logic.
 
 ## Hyperparameter Tuning
 
