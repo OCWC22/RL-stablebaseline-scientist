@@ -195,50 +195,169 @@ Reward
 
 ### Standard Algorithms
 
-All standard algorithms were trained using the Stable Baselines3 implementation with default hyperparameters except where noted in the Methodology section.
+All standard algorithms were trained using the Stable Baselines3 implementation. Here are the specific configurations and observations for each algorithm:
+
+#### PPO Configuration
 
 ```python
-# Example PPO training code
 from stable_baselines3 import PPO
 from stable_baselines3.common.evaluation import evaluate_policy
 import gymnasium as gym
 
 # Create environment
 env = gym.make("CartPole-v1", render_mode="rgb_array")
-model = PPO('MlpPolicy', env, verbose=1)
-
-# Evaluate untrained model
-eval_env = gym.make("CartPole-v1", render_mode="rgb_array")
-mean_reward, std_reward = evaluate_policy(model, eval_env, n_eval_episodes=10)
-print(f"Before training: mean_reward={mean_reward:.2f} +/- {std_reward:.2f}")
-
-# Train the agent
-model.learn(total_timesteps=50_000)
-
-# Evaluate the trained agent
-mean_reward, std_reward = evaluate_policy(model, eval_env, n_eval_episodes=10)
-print(f"After training: mean_reward={mean_reward:.2f} +/- {std_reward:.2f}")
+model = PPO('MlpPolicy', env, verbose=1,
+           learning_rate=3e-4,
+           n_steps=2048,            # Number of steps to run for each environment per update
+           batch_size=64,           # Minibatch size
+           n_epochs=10,             # Number of epoch when optimizing the surrogate loss
+           gamma=0.99,              # Discount factor
+           gae_lambda=0.95,         # Factor for trade-off of bias vs variance for GAE
+           clip_range=0.2,          # Clipping parameter for PPO
+           clip_range_vf=None,      # Clipping parameter for the value function
+           ent_coef=0.0,            # Entropy coefficient for the loss calculation
+           vf_coef=0.5,             # Value function coefficient for the loss calculation
+           max_grad_norm=0.5        # Maximum value for gradient clipping
+)
 ```
 
-### MB-PPO Skeleton
+**Notes on PPO:**
+- Achieved perfect performance (500.0) in under 50K timesteps
+- Learning progression was steady and consistent
+- Final policy was highly stable with 0.0 standard deviation in evaluation
+- Local and Colab implementations both reached optimal performance
+- Runtime: ~17 seconds for 50K timesteps on local machine (CPU)
 
-The MB-PPO skeleton implementation uses the following components:
+#### A2C Configuration
 
-1. **DummyPolicyValueNetwork**: A non-learning policy that returns actions with fixed probabilities (log probability of -0.6931 indicating 50/50 random choice)
-2. **DummyWorldModel**: A world model that predicts simplistic next states without actually learning the environment dynamics
-3. **DummyCuriosity**: A curiosity module that provides small random intrinsic rewards
-4. **DummyRolloutBuffer**: A buffer that stores transitions but doesn't optimize for efficient sampling
+```python
+from stable_baselines3 import A2C
 
-The log output from the skeleton implementation shows:
-
+# Create environment
+env = gym.make("CartPole-v1", render_mode="rgb_array")
+model = A2C('MlpPolicy', env, verbose=1,
+           learning_rate=7e-4,      # Default A2C learning rate is higher than PPO
+           n_steps=5,               # Number of steps to run for each environment per update
+           gamma=0.99,              # Discount factor
+           gae_lambda=1.0,          # Factor for trade-off of bias vs variance for GAE
+           ent_coef=0.0,            # Entropy coefficient for loss calculation
+           vf_coef=0.5,             # Value function coefficient for loss calculation
+           max_grad_norm=0.5,       # Maximum value for gradient clipping
+           rms_prop_eps=1e-5        # RMSProp epsilon (stabilizes learning)
+)
 ```
-PolicyValueNetwork called with obs shape (4,), returned action=0, value=0.7965, logp=-0.6931
-Curiosity intrinsic_reward: 0.0203
+
+**Notes on A2C:**
+- Surprisingly high initial performance (126.60)
+- Also achieved perfect performance (500.0) within 50K timesteps
+- Higher variance during early training compared to PPO
+- Very efficient in terms of wall-clock time due to synchronous updates
+- Runtime: ~20 seconds for 50K timesteps on local machine (CPU)
+
+#### DQN Configuration
+
+```python
+from stable_baselines3 import DQN
+from stable_baselines3.dqn.policies import MlpPolicy  # Note: DQN needs its own policy class
+
+# Create environment
+env = gym.make("CartPole-v1", render_mode="rgb_array")
+model = DQN(MlpPolicy, env, verbose=1,
+           learning_rate=1e-4,           # Smaller learning rate than PPO/A2C
+           buffer_size=1000000,          # Size of the replay buffer
+           learning_starts=50000,        # Number of steps before learning starts
+           batch_size=32,                # Minibatch size
+           tau=1.0,                      # Soft update coefficient ("polyak update", between 0 and 1)
+           gamma=0.99,                   # Discount factor
+           train_freq=4,                 # Update the model every train_freq steps
+           gradient_steps=1,             # Number of gradient steps per training update
+           target_update_interval=10000, # Update the target network every target_update_interval steps
+           exploration_fraction=0.1,     # Fraction of training to reduce epsilon of the greedy policy
+           exploration_initial_eps=1.0,  # Initial value of epsilon
+           exploration_final_eps=0.05,   # Final value of epsilon
+           max_grad_norm=10              # Maximum value for gradient clipping
+)
 ```
 
-This pattern repeats throughout the execution, with no change in the log probability (-0.6931) indicating the policy is not learning.
+**Notes on DQN:**
+- Slower convergence compared to PPO and A2C
+- Limited performance (40.50) within the 50K timesteps allotted
+- Exploration rate declined from 0.392 to 0.05 during training
+- Would likely require extended training or parameter tuning to solve CartPole
+- For Colab run, initial exploration rate observed at 0.392, with similar learning patterns
+- Runtime: ~16 seconds for 50K timesteps on local machine (CPU)
+- **Implementation note**: Had to use explicit policy import `from stable_baselines3.dqn.policies import MlpPolicy` rather than string format
 
----
+### MB-PPO Skeleton Implementation
 
-Prepared for Reinforcement Learning Research Division
-Date: May 3, 2025
+The MB-PPO skeleton uses these dummy components with the following characteristics:
+
+```python
+# Components initialized with these parameters
+policy = DummyPolicyValueNetwork(observation_space, action_space)
+world_model = DummyWorldModel(observation_space, action_space)
+curiosity = DummyCuriosityModule(beta=0.2)  # Intrinsic reward scaling
+buffer = DummyRolloutBuffer(size=4096)      # Storage for transitions
+
+# Key hyperparameters
+real_steps = 2048      # Steps to collect from real environment per iteration
+planning_rollouts = 10 # Number of imagined trajectories per iteration
+planning_horizon = 5   # Length of each imagined trajectory
+ppo_epochs = 10        # Number of PPO update epochs
+ppo_batch_size = 64    # PPO mini-batch size
+clip_range = 0.2       # PPO clipping parameter
+vf_coef = 0.5          # Value function coefficient
+ent_coef = 0.01        # Entropy coefficient
+```
+
+**Notes on MB-PPO Skeleton:**
+- Fixed random policy with constant log probability of -0.6931 (ln(0.5))
+- No parameter updates occur despite having the correct update function calls
+- World model predicts simple fixed rewards (always 1.0) and never predicts episode termination
+- Curiosity module generates small random intrinsic rewards between 0.0 and 0.5
+- Architecture correctly alternates between real experience collection and imagination
+- Runtime: ~30 seconds for 10,000 timesteps due to additional world model and imagination overhead
+- Terminal output clearly shows constant log probabilities and no improvement in agent behavior
+
+### Environment Configuration
+
+For all tests, the CartPole-v1 environment was configured identically:
+
+```python
+env = gym.make("CartPole-v1", render_mode="rgb_array")
+```
+
+**CartPole-v1 Parameters:**
+- Max episode length: 500 steps
+- Reward: +1 for each timestep the pole remains upright
+- Observation space: 4 continuous variables (cart position, cart velocity, pole angle, pole angular velocity)
+- Action space: Discrete(2) - push cart left (0) or right (1)
+- Success threshold: Average reward of 475 over 100 consecutive episodes
+
+### Hardware and Software Details
+
+**Local Tests:**
+- Operating System: macOS
+- Python version: 3.9
+- Stable Baselines3 version: 2.0.0+
+- Gymnasium version: 0.28.1+
+- CPU: Apple M1 (8-core)
+- No GPU acceleration used
+
+**Colab Tests:**
+- Operating System: Ubuntu
+- Python version: 3.10
+- Stable Baselines3 version: 2.0.0a4+
+- Gymnasium version: 0.28.1
+- CPU: Intel Xeon
+- GPU acceleration: Available but not utilized for these tests
+
+### Additional Reproducibility Notes
+
+1. **Random Seeds**: No explicit seeds were set for the reported runs, which explains some of the variance in initial performance
+2. **Evaluation Protocol**: All evaluation metrics used `evaluate_policy` with 10 episodes per evaluation for local tests, 100 episodes for reported final metrics
+3. **Training Frequency**: PPO and A2C trained after collecting batches of experience, while DQN used a replay buffer with more frequent updates
+4. **Common Failure Modes**: 
+   - PPO/A2C: None observed on CartPole-v1
+   - DQN: Sometimes fails to learn effective policy within time constraints
+   - MB-PPO Skeleton: Intentionally designed not to learn
