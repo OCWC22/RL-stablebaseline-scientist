@@ -21,8 +21,13 @@ Based on the plan outlined in `prd.md`.
 │   └── train_a2c.py
 │   └── train_dqn.py
 │   └── evaluate_agent.py
+│   └── tune_rl.py
+│   └── tune_ppo.py
+│   └── tune_a2c.py
+│   └── tune_dqn.py
 ├── models/             # Saved model checkpoints (.zip)
 ├── logs/               # TensorBoard logs
+├── tuning_results/     # Hyperparameter tuning results
 ├── requirements.txt    # Project dependencies
 ├── prd.md              # Project plan and details
 ├── coding_updates_1.md # Log of code changes
@@ -93,6 +98,65 @@ Launch TensorBoard to view training progress:
 tensorboard --logdir logs/
 ```
 Navigate to `http://localhost:6006/` in your browser.
+
+## Hyperparameter Tuning
+
+The project includes automated hyperparameter tuning capabilities using Optuna for all three algorithms (PPO, A2C, and DQN). This allows you to find optimal hyperparameters for your specific environment and requirements.
+
+### Unified Tuning Interface
+
+Use the unified tuning interface to optimize any of the implemented algorithms:
+
+```bash
+# Tune PPO with 50 trials
+python -m scripts.tune_rl --algorithm ppo --n-trials 50
+
+# Tune A2C with custom study name and storage
+python -m scripts.tune_rl --algorithm a2c --study-name my_a2c_study --storage sqlite:///tuning.db
+
+# Tune DQN with more timesteps
+python -m scripts.tune_rl --algorithm dqn --n-timesteps 200000
+```
+
+### Algorithm-Specific Tuning
+
+You can also use the algorithm-specific tuning scripts directly:
+
+```bash
+# Tune PPO
+python -m scripts.tune_ppo --n-trials 50
+
+# Tune A2C
+python -m scripts.tune_a2c --n-trials 50
+
+# Tune DQN
+python -m scripts.tune_dqn --n-trials 50
+```
+
+### Tuning Results
+
+Results are saved in the `tuning_results` directory (or a custom directory if specified) with the following structure:
+
+- Best hyperparameters as JSON files
+- Visualization of optimization history and parameter importance
+- Individual trial results and trained models
+
+### Using Tuned Hyperparameters
+
+To use the best hyperparameters found during tuning in your training scripts:
+
+```python
+import json
+
+# Load the best hyperparameters
+with open("tuning_results/ppo/ppo_cartpole_best_params.json", "r") as f:
+    best_params = json.load(f)
+
+# Create the model with the best hyperparameters
+from stable_baselines3 import PPO
+model = PPO("MlpPolicy", env, **best_params, verbose=1)
+model.learn(total_timesteps=100000)
+```
 
 ## Testing
 

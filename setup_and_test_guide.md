@@ -124,6 +124,99 @@ python -m pytest tests/test_evaluate_agent.py -v
    - Verifies that models can be loaded with the correct algorithm type
    - Checks model type integrity
 
+## Hyperparameter Tuning
+
+The project includes comprehensive hyperparameter tuning capabilities for all three implemented algorithms (PPO, A2C, and DQN) using Optuna, a powerful hyperparameter optimization framework.
+
+### Setting Up for Tuning
+
+To use the hyperparameter tuning capabilities, you'll need to install the additional dependencies:
+
+```bash
+# Activate the virtual environment
+source .venv-sb3/bin/activate
+
+# Install tuning dependencies
+python -m pip install optuna plotly kaleido
+```
+
+### Using the Unified Tuning Interface
+
+The project provides a unified command-line interface for tuning any of the implemented algorithms:
+
+```bash
+# Tune PPO with default settings
+python -m scripts.tune_rl --algorithm ppo
+
+# Tune A2C with fewer trials for faster results
+python -m scripts.tune_rl --algorithm a2c --n-trials 20
+
+# Tune DQN with more timesteps for better convergence
+python -m scripts.tune_rl --algorithm dqn --n-timesteps 200000
+```
+
+### Algorithm-Specific Tuning
+
+You can also use the algorithm-specific tuning scripts directly:
+
+```bash
+# Tune PPO with specific parameters
+python -m scripts.tune_ppo --n-trials 50 --output-dir custom_tuning_results
+
+# Tune A2C with database storage for persistence
+python -m scripts.tune_a2c --storage sqlite:///tuning.db --study-name a2c_study
+
+# Tune DQN with specific seed for reproducibility
+python -m scripts.tune_dqn --seed 12345
+```
+
+### Understanding Tuning Results
+
+Tuning results are saved in the `tuning_results` directory (or a custom directory if specified) with the following structure:
+
+- `<algorithm>_cartpole_best_params.json`: The best hyperparameters found during tuning
+- `<algorithm>_history.png`: Visualization of the optimization history
+- `<algorithm>_importance.png`: Visualization of parameter importance
+- Individual trial directories with:
+  - Trial-specific results
+  - Trained models for successful trials
+  - TensorBoard logs for each trial
+
+### Using Tuned Hyperparameters
+
+To use the best hyperparameters found during tuning in your training scripts:
+
+1. Locate the best parameters JSON file in the tuning results directory
+2. Load the parameters in your training script:
+
+```python
+import json
+
+# Load the best hyperparameters
+with open("tuning_results/ppo/ppo_cartpole_best_params.json", "r") as f:
+    best_params = json.load(f)
+
+# Create the model with the best hyperparameters
+model = PPO(
+    policy="MlpPolicy",
+    env=env,
+    **best_params,
+    verbose=1
+)
+```
+
+### Testing Tuning Scripts
+
+The project includes tests for all tuning scripts to ensure they work correctly:
+
+```bash
+# Test all tuning scripts
+python -m pytest tests/test_tune_ppo.py tests/test_tune_a2c.py tests/test_tune_dqn.py tests/test_tune_rl.py -v
+
+# Test specific tuning script
+python -m pytest tests/test_tune_rl.py -v
+```
+
 ## Common Test Failures and Solutions
 
 1. **PPO Timestep Mismatch**: PPO processes data in batches, so the actual number of timesteps may be slightly higher than requested (rounded up to complete the last batch).
