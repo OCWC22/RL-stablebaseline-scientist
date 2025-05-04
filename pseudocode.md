@@ -114,3 +114,45 @@ May 3, 2025 v15: Model-Based Planning with Adaptive Imagination
 #     "model_loss": loss_model,
 #     "mean_real_reward": mean(B.real_ext_rewards())
 # })
+
+
+
+
+
+
+## Questions
+Integrating this into the existing Stable Baselines3 setup requires careful consideration because it's not a standard SB3 algorithm. Here are my initial thoughts and questions to clarify the implementation goals:
+
+Core Algorithm Integration:
+
+Custom Algorithm vs. Modification? The pseudocode describes a fundamentally new learning loop involving a world model and imagined rollouts. Would you prefer to:
+(A) Implement a new Custom Algorithm: Create a new class (e.g., ModelBasedPPO) potentially inheriting from sb3.common.base_class.BaseAlgorithm or sb3.common.on_policy_algorithm.OnPolicyAlgorithm? This allows for a clean implementation tailored to the pseudocode but is more work.
+(B) Modify Existing SB3 PPO: Try to hook the world model and imagination steps into the existing PPO's collect_rollouts and train methods? This might be faster initially but could become messy and hard to maintain.
+My Recommendation: Option (A) seems cleaner given the significant differences from standard PPO.
+Network Architecture: The pseudocode mentions separate policy/value networks (πθ, Vθ), a world model (ŵφ), and a curiosity module (Cψ), with an optional shared encoder.
+Should we enforce separate networks as described, or can we leverage SB3's combined ActorCritic policies (like ActorCriticPolicy) and add the world model and curiosity networks separately?
+For the CartPole environment (low-dimensional state), what kind of networks should we use? Simple Multi-Layer Perceptrons (MLPs) for all components seem appropriate initially.
+Component Specifics:
+
+World Model (ŵφ):
+Should it predict the change in state (Δstate) or the absolute next state (s' )? Predicting the next state directly might be simpler for MLP models.
+What should the loss function weights be for state, reward, and done predictions? The pseudocode uses simple MSE and BCE, implying equal weighting.
+Curiosity Module (Cψ):
+Is RND (Random Network Distillation) the desired method, or was it just an example? If RND, we'll need to implement its specific target/predictor network structure.
+Should curiosity be enabled by default, or configurable? (The pseudocode suggests starting with β_init = 0 disables it initially).
+Adaptive Imagination:
+The confidence = exp(−loss_model) calculation is simple. Is this sufficient?
+How exactly should the interpolate function map confidence (between confidence_thresh and 1.0) to the number of rollouts (between min_planning_rollouts and max_planning_rollouts)? Linear interpolation?
+Data Buffer (RolloutBuffer B):
+We need a buffer that handles both real and imagined transitions, storing associated data like is_real, intrinsic/extrinsic rewards separately. SB3's RolloutBuffer is designed for real, on-policy data. We'll likely need a custom buffer class. Does that sound right?
+Adaptive Curiosity Weight (β):
+The adaptation logic uses the slope of a moving_average. What window size should be used for the moving average? How should the slope be calculated (e.g., linear regression over the window)? What are suitable low_threshold and high_threshold values for the trend? These might require tuning.
+Project Structure:
+
+How should we organize the new code? I suggest:
+src/algorithms/model_based_ppo/: Core algorithm logic (ModelBasedPPO class).
+src/models/world_model.py: WorldModel class.
+src/models/curiosity.py: CuriosityModule class (e.g., RNDModule).
+src/buffers/mixed_rollout_buffer.py: Custom buffer class.
+scripts/train_mbppo.py: New training script.
+tests/test_mbppo.py: New test file.
