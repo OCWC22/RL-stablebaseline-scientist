@@ -92,6 +92,7 @@ These improvements highlight the importance of hyperparameter tuning and impleme
 ├── a2c_test.py             # A2C test script
 ├── dqn_test.py             # DQN test script
 ├── mb_ppo_test.py          # Model-Based PPO test script
+├── streamlit_app.py       # Interactive dashboard for algorithm comparison
 ├── algorithm_comparison.md # Detailed algorithm comparison document
 ├── model_based_rl_explained.md # Explanation of Model-Based RL approach
 ├── notebook_modification_instructions.md # Instructions for notebook modifications
@@ -199,6 +200,74 @@ The skeleton implementation includes:
 
 This serves as a foundation for implementing the full algorithm with actual neural networks and optimization logic.
 
+## Running the Interactive Dashboard
+
+This project includes an interactive Streamlit dashboard for visualizing and comparing algorithm performance metrics:
+
+```bash
+# Install Streamlit if not already installed
+pip install streamlit
+
+# Run the dashboard
+streamlit run streamlit_app.py
+```
+
+The dashboard provides:
+- Performance comparison across algorithms and environments
+- Optimization impact analysis
+- Learning visualization
+- Model-Based RL architecture explanation
+
+The dashboard directly integrates with the project's markdown documentation files to ensure consistency between visualizations and documentation.
+
+## Running the Algorithms
+
+### Local Environment Setup
+
+```bash
+# Install dependencies
+pip install gymnasium stable-baselines3 numpy torch matplotlib
+
+# Set Python path to include the project root
+export PYTHONPATH=$PYTHONPATH:/path/to/RL-stablebaseline-scientist
+```
+
+### Running Standard Algorithms
+
+```bash
+# Run PPO
+python ppo_test.py
+
+# Run A2C
+python a2c_test.py
+
+# Run DQN
+python dqn_test.py
+
+# Run Model-Based PPO skeleton
+python mb_ppo_test.py
+```
+
+### Notebook Implementation
+
+To modify the Colab notebook (`Copy_of_1_getting_started.ipynb`) for different algorithms:
+
+1. Follow instructions in `notebook_modification_instructions.md`
+2. Use code cells from `notebook_a2c_cells.py` or `notebook_dqn_cells.py`
+
+## Documentation
+
+- **algorithm_comparison.md**: Detailed comparison of algorithm performance
+- **model_based_rl_explained.md**: Comprehensive explanation of Model-Based RL approach
+- **project_presentation.md**: Complete project overview for presentation purposes
+
+## Future Work
+
+1. Implement learning neural networks for MB-PPO components
+2. Evaluate sample efficiency compared to model-free approaches
+3. Add advanced exploration mechanisms via the curiosity module
+4. Test on more complex environments beyond CartPole-v1
+
 ## Hyperparameter Tuning
 
 The project includes automated hyperparameter tuning capabilities using Optuna for all three algorithms (PPO, A2C, and DQN). This allows you to find optimal hyperparameters for your specific environment and requirements.
@@ -257,54 +326,6 @@ from stable_baselines3 import PPO
 model = PPO("MlpPolicy", env, **best_params, verbose=1)
 model.learn(total_timesteps=100000)
 ```
-
-## Running the Algorithms
-
-### Local Environment Setup
-
-```bash
-# Install dependencies
-pip install gymnasium stable-baselines3 numpy torch matplotlib
-
-# Set Python path to include the project root
-export PYTHONPATH=$PYTHONPATH:/path/to/RL-stablebaseline-scientist
-```
-
-### Running Standard Algorithms
-
-```bash
-# Run PPO
-python ppo_test.py
-
-# Run A2C
-python a2c_test.py
-
-# Run DQN
-python dqn_test.py
-
-# Run Model-Based PPO skeleton
-python mb_ppo_test.py
-```
-
-### Notebook Implementation
-
-To modify the Colab notebook (`Copy_of_1_getting_started.ipynb`) for different algorithms:
-
-1. Follow instructions in `notebook_modification_instructions.md`
-2. Use code cells from `notebook_a2c_cells.py` or `notebook_dqn_cells.py`
-
-## Documentation
-
-- **algorithm_comparison.md**: Detailed comparison of algorithm performance
-- **model_based_rl_explained.md**: Comprehensive explanation of Model-Based RL approach
-- **project_presentation.md**: Complete project overview for presentation purposes
-
-## Future Work
-
-1. Implement learning neural networks for MB-PPO components
-2. Evaluate sample efficiency compared to model-free approaches
-3. Add advanced exploration mechanisms via the curiosity module
-4. Test on more complex environments beyond CartPole-v1
 
 ## Acknowledgments
 
