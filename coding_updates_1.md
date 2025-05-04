@@ -874,3 +874,28 @@ Including MB-PPO in the visualization provides important context about our exper
 - Add toggle to include/exclude MB-PPO from visualizations
 - Create a specialized visualization showing how MB-PPO maintains constant performance
 - Add tooltips explaining the purpose of MB-PPO as a control baseline
+## 05-03-2025 - Added MB-PPO to Runtime Reduction Chart
+
+### Files Updated:
+- `/Users/chen/Projects/RL-stablebaseline-scientist/streamlit_app.py`: Included MB-PPO in runtime reduction visualization
+
+### Description:
+Updated the optimization impact visualization to include MB-PPO in both the performance improvement and runtime reduction charts, providing a complete view of all algorithms in the comparison.
+
+### Reasoning:
+While MB-PPO has 0% runtime reduction (since it's not optimized), including it in both charts provides a more complete and consistent visualization. This helps users see the full picture of all algorithms side by side and reinforces MB-PPO's role as a control baseline in the experiment.
+
+### Trade-offs:
+- Including a 0% bar might initially seem uninformative but provides important context
+- Consistent representation across both charts vs. only showing where there are meaningful differences
+- Visual completeness vs. potential confusion about why MB-PPO shows 0%
+
+### Considerations:
+- The 0% runtime reduction bar for MB-PPO reinforces that it's a fixed implementation without optimization
+- Maintaining consistent algorithm representation across all visualizations helps users track each algorithm
+- The text label clearly shows "0.0%" so there's no ambiguity about the value
+
+### Future Work:
+- Add tooltips explaining why MB-PPO shows 0% (by design, as a control baseline)
+- Consider adding a note below the chart explaining MB-PPO's purpose
+- Implement a toggle to show/hide specific algorithms for more focused comparisons

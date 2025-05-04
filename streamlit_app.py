@@ -400,20 +400,18 @@ with tab1:
     
     # Add runtime reduction bars
     for algo, reduction in runtime_reductions.items():
-        # Skip MB-PPO for runtime reduction since it's not optimized
-        if algo != "MB-PPO" or reduction > 0:
-            fig.add_trace(
-                go.Bar(
-                    x=[algo],
-                    y=[reduction],
-                    name=algo,
-                    marker_color=colors[algo],
-                    text=[f"{reduction:.1f}%"],
-                    textposition="outside",
-                    showlegend=False
-                ),
-                row=1, col=2
-            )
+        fig.add_trace(
+            go.Bar(
+                x=[algo],
+                y=[reduction],
+                name=algo,
+                marker_color=colors[algo],
+                text=[f"{reduction:.1f}%"],
+                textposition="outside",
+                showlegend=False
+            ),
+            row=1, col=2
+        )
     
     # Update layout
     fig.update_layout(
