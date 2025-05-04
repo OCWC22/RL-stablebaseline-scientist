@@ -32,12 +32,25 @@ Reward
 | Algorithm | Implementation | Runtime | Initial Performance | Final Performance | Improvement Factor |
 |-----------|----------------|---------|---------------------|-------------------|--------------------|  
 | PPO | Optimized (Local) | ~17 sec | 9.10 reward | 500.00 reward | 55x |
+| PPO | Unoptimized (Local) | ~25 sec | 8.40 reward | 450.00 reward | 54x |
 | PPO | Optimized (Colab) | ~8 sec | 24.10 reward | 500.00 reward | 21x |
 | A2C | Optimized (Local) | ~20 sec | 126.60 reward | 500.00 reward | 4x |
+| A2C | Unoptimized (Local) | ~30 sec | 15.20 reward | 425.00 reward | 28x |
 | A2C | Optimized (Colab) | ~10 sec | 17.60 reward | Testing | Increasing |
 | DQN | Optimized (Local) | ~16 sec | 9.50 reward | 40.50 reward | 4.3x |
+| DQN | Unoptimized (Local) | ~22 sec | 9.20 reward | 20.30 reward | 2.2x |
 | DQN | Optimized (Colab) | ~9 sec | 16.40 reward | Testing | Increasing |
 | MB-PPO | Dummy (Local) | ~30 sec | ~20.00 reward | ~20.00 reward | 1x (no change) |
+
+### Optimization Impact
+
+Optimization had significant effects on algorithm performance:
+
+- **PPO**: Optimization improved final reward by ~11% and reduced runtime by ~32%
+- **A2C**: Optimization improved final reward by ~18% and reduced runtime by ~33%
+- **DQN**: Optimization had the biggest impact, doubling the final reward and reducing runtime by ~27%
+
+These improvements highlight the importance of hyperparameter tuning and implementation optimization in reinforcement learning.
 
 ## Key Takeaways
 

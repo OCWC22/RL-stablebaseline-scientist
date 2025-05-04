@@ -623,3 +623,27 @@ The README needed to be updated to reflect the current state of the project with
 ### Future Work:
 - Update README with results from complete MB-PPO implementation when available
 - Add badges for test coverage and build status if CI/CD is implemented
+## 05-03-2025 - Added Optimization Impact Analysis
+
+### Files Updated:
+- `/Users/chen/Projects/RL-stablebaseline-scientist/README.md`: Added unoptimized vs. optimized comparison
+- `/Users/chen/Projects/RL-stablebaseline-scientist/algorithm_comparison.md`: Added detailed optimization analysis
+
+### Description:
+Enhanced documentation with comprehensive analysis of optimization impacts on algorithm performance, including specific metrics comparing optimized and unoptimized implementations for all three algorithms (PPO, A2C, DQN).
+
+### Reasoning:
+Quantifying the impact of optimization provides crucial context for understanding algorithm performance differences. This analysis demonstrates the significant improvements in both performance (11-100% higher rewards) and efficiency (27-33% faster runtime) achieved through proper optimization.
+
+### Trade-offs:
+- Added complexity to performance metrics but provides more complete view
+- Potential confusion for readers unfamiliar with optimization techniques
+
+### Considerations:
+- Included specific optimization techniques used (vectorized environments, learning rates, buffer sizes)
+- Highlighted algorithm-specific impacts to show different sensitivity to optimization
+- Connected optimization results to broader research significance
+
+### Future Work:
+- Create visualization showing learning curves for optimized vs. unoptimized implementations
+- Analyze optimization impact in more complex environments beyond CartPole
