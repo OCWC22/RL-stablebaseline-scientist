@@ -5,7 +5,7 @@
 import gymnasium as gym
 import numpy as np
 from stable_baselines3 import DQN
-from stable_baselines3.dqn import MlpPolicy
+from stable_baselines3.dqn.policies import MlpPolicy  # Import the DQN-specific policy
 from stable_baselines3.common.evaluation import evaluate_policy
 from stable_baselines3.common.vec_env import VecVideoRecorder, DummyVecEnv
 '''
@@ -43,7 +43,7 @@ print(f"mean_reward:{mean_reward:.2f} +/- {std_reward:.2f}")
 
 # For video recording cell (replace the existing record_video function):
 '''
-define record_video(env_id, model, video_length=500, prefix="", video_folder="videos/"):
+def record_video(env_id, model, video_length=500, prefix="", video_folder="videos/"):
     """
     :param env_id: (str)
     :param model: (RL model)

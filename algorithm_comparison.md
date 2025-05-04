@@ -111,17 +111,6 @@ As expected, the MB-PPO skeleton implementation performed poorly, averaging only
 3. **Component Verification**: The dummy world model, curiosity module, and policy network produced outputs with the correct shapes and ranges, confirming the architectural soundness
 4. **Data Flow Verification**: The system correctly moved data between components, with real experience collection, world model predictions, and policy updates all functioning as designed
 
-### Environment Differences: Local vs. Colab
-
-We ran the algorithms in both local environment and Google Colab to verify consistency of results. Some small differences were observed in initial performance, which is expected due to random initialization and environmental differences:
-
-| Algorithm | Local Initial Reward | Colab Initial Reward | Local Final Reward | Colab Final Reward |
-|-----------|---------------------|---------------------|-------------------|-------------------|
-| PPO | 9.10 | 24.1 | 500.00 | 500.00 |
-| A2C | 126.60 | Not tested | 500.00 | Not tested |
-| DQN | 9.50 | Not tested | 40.50 | Not tested |
-| MB-PPO Skeleton | ~20 | Not applicable | ~20 | Not applicable |
-
 ### Optimized vs. Dummy Implementation Comparison
 
 The contrast between the optimized algorithms and our skeleton implementation provides key insights into the model-based reinforcement learning approach:
@@ -136,22 +125,57 @@ The contrast between the optimized algorithms and our skeleton implementation pr
 | Performance | Converges to optimal policy (PPO/A2C) | Maintains random-level performance |
 | Log Probability | Changes as policy improves | Fixed at -0.6931 (ln(0.5)) |
 
-These variations in performance are normal in reinforcement learning due to differences in:
+### Environment Differences: Local vs. Colab
 
-1. Random weight initialization
-2. Minor implementation differences between environments
-3. Different random seeds
-4. Hardware differences (CPU vs. GPU)
+We ran the algorithms in both local environment and Google Colab to verify consistency of results. Some small differences were observed in initial performance, which is expected due to random initialization and environmental differences:
 
-The key insight is that both optimized implementations start with relatively low performance as expected for an untrained policy, and both successfully converge to optimal performance with sufficient training. This stands in stark contrast to our MB-PPO skeleton, which deliberately maintains random-level performance throughout training.
+| Algorithm | Local Initial | Colab Initial | Local Final | Colab Final | Exploration Rate |
+|-----------|--------------|--------------|------------|------------|------------------|
+| PPO | 9.10 | 24.1 | 500.00 | 500.00 | N/A (uses entropy) |
+| A2C | 126.60 | Not tested | 500.00 | Not tested | N/A (uses entropy) |
+| DQN | 9.50 | 16.4 | 40.50 | Testing | 0.392 → 0.05 |
+| MB-PPO Skeleton | ~20 | Not applicable | ~20 | Not applicable | N/A (fixed random) |
 
-**The critical validation from this comparison:**
+#### Training Progression Comparison
 
-1. The standard algorithms learn effectively in our environment setup
-2. The dummy components in our MB-PPO skeleton correctly maintain their non-learning behavior
-3. The architecture of our MB-PPO implementation properly handles data flow between components
+| Algorithm | Environment | Initial Phase | Mid Training | Final Performance | Learning Pattern |
+|-----------|-------------|--------------|-------------|-------------------|------------------|
+| PPO | Local | Random actions (9.10) | Learns quickly | Perfect (500.00) | Steady improvement |
+| PPO | Colab | Semi-random (24.1) | Learns quickly | Perfect (500.00) | Steady improvement |
+| DQN | Local | Random actions (9.50) | Slow improvement | Limited (40.50) | Gradual, plateaus early |
+| DQN | Colab | Semi-random (16.4) | Exploration drops quickly | Testing | Exploration-dependent |
+| MB-PPO Skeleton | Local | Random actions (~20) | No improvement | Random (~20) | Flat (by design) |
 
-This provides a solid foundation for implementing the learning components of our model-based approach, with clear benchmarks for performance comparison.
+#### Exploration Strategy Comparison
+
+| Algorithm | Strategy | Initial Exploration | Final Exploration | Adapts During Training? |
+|-----------|----------|---------------------|-------------------|-------------------------|
+| PPO | Entropy-based | High entropy | Lower entropy | Yes - policy gradually becomes more deterministic |
+| A2C | Entropy-based | High entropy | Lower entropy | Yes - similar to PPO |
+| DQN | ε-greedy | High ε (0.392) | Low ε (0.05) | Yes - linear annealing of exploration rate |
+| MB-PPO Skeleton | Fixed random | 50/50 (log prob -0.6931) | 50/50 (log prob -0.6931) | No - remains fully random |
+
+### Algorithm Performance Visualization
+
+```
+Reward
+500 |                                   ******* PPO & A2C (Local/Colab)
+    |                                  /
+400 |                                 /
+    |                                /
+300 |                               /
+    |                              /
+200 |                             /
+    |         A2C (initial)  *    /
+100 |                         \   /
+    |                          \ /
+ 50 |                           X                     ********** DQN (Local)
+    |                          / \
+ 20 | **************************   *************************** MB-PPO Skeleton
+    |                         PPO (initial)
+  0 +------------------------------------------------------------
+      Start                    Training Steps                  End
+```
 
 ## Conclusions
 
