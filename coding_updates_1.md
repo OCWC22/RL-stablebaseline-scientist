@@ -323,3 +323,34 @@ Benchmark testing is essential to verify that our implementations are production
 - Extend benchmark testing to more complex environments
 - Implement custom neural network architectures to potentially improve performance
 - Create visualization tools to better understand and compare learning dynamics across algorithms
+
+## 05-03-2025 - Optimized DQN Implementation for CartPole-v1
+
+### Files Updated:
+- `/scripts/train_optimized_dqn.py`: Created optimized DQN implementation for CartPole
+
+### Description:
+Implemented an optimized version of DQN specifically tuned for the CartPole-v1 environment. The optimized implementation significantly improved performance from ~10 average reward with default parameters to ~425 average reward with optimized parameters.
+
+### Reasoning:
+Our benchmark testing revealed that the default DQN implementation performed poorly on CartPole-v1. This optimization addresses the specific challenges of DQN on this environment by adjusting key hyperparameters based on research and best practices.
+
+### Trade-offs:
+- Increased learning rate (5e-4) for faster convergence at the risk of potential instability
+- Used deeper network architecture (256, 256) to capture more complex patterns at the cost of increased computation
+- Adjusted exploration parameters (fraction=0.2, final_eps=0.05) to balance exploration and exploitation
+- Increased target update interval (500) for more stable learning targets
+- Extended training duration (200,000 timesteps) to ensure sufficient learning
+
+### Considerations:
+- The optimized DQN showed significant performance improvement, reaching an average reward of 424.65 ± 146.45
+- While not consistently above the 475 solving threshold, it occasionally reached the maximum 500 reward during training
+- The higher standard deviation (146.45) indicates some inconsistency in performance compared to PPO
+- The training showed interesting learning dynamics with periods of high performance followed by temporary drops
+
+### Future Work:
+- Further refine hyperparameters to reduce performance variance
+- Implement prioritized experience replay to improve sample efficiency
+- Add double Q-learning to reduce overestimation bias
+- Explore dueling network architectures for better value estimation
+- Implement ensemble methods to improve stability
