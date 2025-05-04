@@ -111,6 +111,48 @@ As expected, the MB-PPO skeleton implementation performed poorly, averaging only
 3. **Component Verification**: The dummy world model, curiosity module, and policy network produced outputs with the correct shapes and ranges, confirming the architectural soundness
 4. **Data Flow Verification**: The system correctly moved data between components, with real experience collection, world model predictions, and policy updates all functioning as designed
 
+### Environment Differences: Local vs. Colab
+
+We ran the algorithms in both local environment and Google Colab to verify consistency of results. Some small differences were observed in initial performance, which is expected due to random initialization and environmental differences:
+
+| Algorithm | Local Initial Reward | Colab Initial Reward | Local Final Reward | Colab Final Reward |
+|-----------|---------------------|---------------------|-------------------|-------------------|
+| PPO | 9.10 | 24.1 | 500.00 | 500.00 |
+| A2C | 126.60 | Not tested | 500.00 | Not tested |
+| DQN | 9.50 | Not tested | 40.50 | Not tested |
+| MB-PPO Skeleton | ~20 | Not applicable | ~20 | Not applicable |
+
+### Optimized vs. Dummy Implementation Comparison
+
+The contrast between the optimized algorithms and our skeleton implementation provides key insights into the model-based reinforcement learning approach:
+
+| Feature | Optimized Algorithms (PPO/A2C/DQN) | MB-PPO Skeleton |
+|---------|-----------------------------------|------------------|
+| Learning | Updates policy/value networks using gradients | Dummy networks with no parameter updates |
+| State Representation | Direct environment observations | Combines real observations with world model predictions |
+| Action Selection | Learns optimal policy through exploration | Random sampling (50/50 probability for each action) |
+| Exploration Strategy | Epsilon-greedy or entropy-based | No strategic exploration (fixed random policy) |
+| Sample Efficiency | Requires many environment interactions | Currently inefficient (dummy), designed to be more efficient once implemented |
+| Performance | Converges to optimal policy (PPO/A2C) | Maintains random-level performance |
+| Log Probability | Changes as policy improves | Fixed at -0.6931 (ln(0.5)) |
+
+These variations in performance are normal in reinforcement learning due to differences in:
+
+1. Random weight initialization
+2. Minor implementation differences between environments
+3. Different random seeds
+4. Hardware differences (CPU vs. GPU)
+
+The key insight is that both optimized implementations start with relatively low performance as expected for an untrained policy, and both successfully converge to optimal performance with sufficient training. This stands in stark contrast to our MB-PPO skeleton, which deliberately maintains random-level performance throughout training.
+
+**The critical validation from this comparison:**
+
+1. The standard algorithms learn effectively in our environment setup
+2. The dummy components in our MB-PPO skeleton correctly maintain their non-learning behavior
+3. The architecture of our MB-PPO implementation properly handles data flow between components
+
+This provides a solid foundation for implementing the learning components of our model-based approach, with clear benchmarks for performance comparison.
+
 ## Conclusions
 
 1. **Framework Validation**: The successful performance of PPO and A2C confirms our experimental framework is correctly configured for RL algorithm evaluation
