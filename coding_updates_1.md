@@ -848,3 +848,29 @@ The optimization impact visualization provides valuable insights into the perfor
 - Refactor the code to avoid duplication between main dashboard and expandable section
 - Add interactive elements to allow users to drill down into specific optimization techniques
 - Create a toggle to switch between absolute values and percentage improvements
+## 05-03-2025 - Added MB-PPO to Optimization Impact Visualization
+
+### Files Updated:
+- `/Users/chen/Projects/RL-stablebaseline-scientist/streamlit_app.py`: Added MB-PPO to optimization impact visualization
+
+### Description:
+Updated the optimization impact visualization in the Streamlit dashboard to include MB-PPO alongside the other algorithms, showing how it deliberately maintains the random policy level as a control baseline.
+
+### Reasoning:
+Including MB-PPO in the visualization provides important context about our experimental design. It shows that while the standard algorithms (PPO, A2C, DQN) improve with optimization, MB-PPO deliberately maintains a constant performance level as a control baseline, validating our testing methodology.
+
+### Trade-offs:
+- Added special handling for MB-PPO since it doesn't have optimized/unoptimized variants
+- Comparing MB-PPO final performance against average initial performance of other algorithms
+- Including MB-PPO in runtime reduction chart might be confusing since it has 0% reduction
+
+### Considerations:
+- Used consistent gold color for MB-PPO to match other visualizations
+- Added conditional logic to handle MB-PPO differently than learning algorithms
+- Added key insights from project_presentation.md about the significance of MB-PPO
+- Updated both the main dashboard and expandable section visualizations
+
+### Future Work:
+- Add toggle to include/exclude MB-PPO from visualizations
+- Create a specialized visualization showing how MB-PPO maintains constant performance
+- Add tooltips explaining the purpose of MB-PPO as a control baseline
