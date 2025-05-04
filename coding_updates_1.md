@@ -354,3 +354,34 @@ Our benchmark testing revealed that the default DQN implementation performed poo
 - Add double Q-learning to reduce overestimation bias
 - Explore dueling network architectures for better value estimation
 - Implement ensemble methods to improve stability
+
+## 05-03-2025 - Optimized A2C Implementation for CartPole-v1
+
+### Files Updated:
+- `/scripts/train_optimized_a2c.py`: Created optimized A2C implementation for CartPole
+
+### Description:
+Implemented an optimized version of A2C specifically tuned for the CartPole-v1 environment. The optimized implementation significantly improved performance from ~435 average reward with default parameters to a perfect 500.00 average reward with optimized parameters.
+
+### Reasoning:
+Our benchmark testing showed that the standard A2C implementation came close to solving CartPole-v1 but fell short of the 475 threshold. This optimization addresses the specific challenges of A2C on this environment by adjusting key hyperparameters based on research and best practices.
+
+### Trade-offs:
+- Increased learning rate (0.001) for faster convergence
+- Reduced n_steps (8) for more frequent updates at the cost of potentially higher variance
+- Increased number of parallel environments (16) for better sample efficiency at the cost of higher memory usage
+- Used deeper network architecture (128, 128) for both policy and value functions
+- Added entropy coefficient (0.01) to encourage exploration
+
+### Considerations:
+- The optimized A2C achieved perfect performance with 500.00 ± 0.00 reward across 20 evaluation episodes
+- Zero standard deviation indicates extremely stable and consistent performance
+- Training was very efficient, completing 200,000 timesteps in just 18 seconds due to the parallel environments
+- The warning about MLP extractor layers is related to SB3 version changes and doesn't affect functionality
+
+### Future Work:
+- Implement custom callbacks for more detailed monitoring of the training process
+- Extend to more complex environments beyond CartPole-v1
+- Explore different network architectures to potentially improve sample efficiency
+- Compare with PPO in terms of sample efficiency and stability across different random seeds
+- Implement visualization tools to better understand the agent's policy
