@@ -161,56 +161,132 @@ tab1, tab2, tab3, tab4 = st.tabs(["Performance Comparison", "Optimization Impact
 with tab1:
     st.header("Algorithm Performance Metrics")
     
-    # Filters
-    col1, col2 = st.columns(2)
-    with col1:
-        selected_algos = st.multiselect(
-            "Select Algorithms",
-            options=df["Algorithm"].unique(),
-            default=df["Algorithm"].unique()
+    # Add explanatory text from algorithm_comparison.md
+    st.info("""
+    **Key Metrics Explained:**
+    - **Initial Performance**: Average reward before training (random policy level is ~20)
+    - **Final Performance**: Average reward after training (perfect score is 500)
+    - **Improvement Factor**: How many times better the final performance is compared to initial
+    - **Runtime**: Training duration in seconds (lower is better)
+    """)
+    
+    # Environment selector with more prominence
+    st.subheader("Select Environment")
+    env_col1, env_col2 = st.columns([1, 3])
+    with env_col1:
+        selected_env = st.radio(
+            "Environment",
+            ["All Environments", "Local Only", "Colab Only"],
+            index=0
         )
     
-    with col2:
-        selected_env = st.multiselect(
-            "Select Environments",
-            options=df["Environment"].unique(),
-            default=df["Environment"].unique()
-        )
+    with env_col2:
+        st.markdown("""
+        - **Local**: Tests run on local machine (macOS)
+        - **Colab**: Tests run on Google Colab (cloud-based)
+        - Different environments often show variation in initial performance due to random seeds and hardware differences
+        """)
+    
+    # Map radio selection to filter values
+    if selected_env == "Local Only":
+        env_filter = ["Local"]
+    elif selected_env == "Colab Only":
+        env_filter = ["Colab"]
+    else:
+        env_filter = df["Environment"].unique()
+    
+    # Algorithm selector
+    selected_algos = st.multiselect(
+        "Select Algorithms",
+        options=df["Algorithm"].unique(),
+        default=df["Algorithm"].unique()
+    )
     
     # Filter data
     filtered_df = df[
         (df["Algorithm"].isin(selected_algos)) &
-        (df["Environment"].isin(selected_env))
+        (df["Environment"].isin(env_filter))
     ]
     
-    # Display metrics table
+    # Display metrics table with styling
+    st.subheader("Performance Metrics Table")
+    
+    # Format the dataframe for display
+    display_df = filtered_df[["Algorithm", "Implementation", "Runtime (sec)", 
+                            "Initial Performance", "Final Performance", "Improvement Factor"]].copy()
+    
+    # Style the dataframe for better visualization
+    def highlight_optimized(val):
+        if 'Optimized' in str(val):
+            return 'background-color: #e6ffe6; font-weight: bold'
+        elif 'Unoptimized' in str(val):
+            return 'background-color: #fff2e6'
+        else:
+            return ''
+    
+    # Display styled dataframe
     st.dataframe(
-        filtered_df[["Algorithm", "Implementation", "Runtime (sec)", 
-                 "Initial Performance", "Final Performance", "Improvement Factor"]],
+        display_df.style.applymap(highlight_optimized, subset=['Implementation']),
         use_container_width=True,
         hide_index=True
     )
     
-    # Create bar chart for final performance
-    st.subheader("Final Performance by Algorithm")
+    # Create bar chart for final performance with environment grouping
+    st.subheader("Final Performance by Algorithm and Environment")
     
     fig = px.bar(
         filtered_df,
-        x="Implementation", 
+        x="Algorithm", 
         y="Final Performance",
-        color="Algorithm",
+        color="Implementation",
         barmode="group",
-        height=400,
-        labels={"Final Performance": "Final Reward", "Implementation": ""},
-        title="Higher is better - CartPole-v1 max reward is 500"
+        height=500,
+        labels={"Final Performance": "Final Reward"},
+        title="Higher is better - CartPole-v1 max reward is 500",
+        color_discrete_map={
+            "Optimized (Local)": "#2E8B57",  # Dark green for optimized local
+            "Unoptimized (Local)": "#CD5C5C",  # Indian red for unoptimized local
+            "Optimized (Colab)": "#4682B4",  # Steel blue for optimized colab
+            "Dummy (Local)": "#FFD700"  # Gold for dummy implementation
+        }
+    )
+    
+    # Add a horizontal line for perfect score
+    fig.add_shape(
+        type="line", x0=-0.5, y0=500, x1=3.5, y1=500,
+        line=dict(color="green", dash="dash", width=2)
+    )
+    
+    fig.add_annotation(
+        x=1.5, y=510,
+        text="Perfect Score (500)",
+        showarrow=False,
+        font=dict(color="green")
     )
     
     fig.update_layout(
-        xaxis_tickangle=-45,
+        xaxis_tickangle=0,
         legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1)
     )
     
     st.plotly_chart(fig, use_container_width=True)
+    
+    # Add key findings from algorithm_comparison.md
+    st.subheader("Key Performance Insights")
+    st.markdown("""
+    **Performance Analysis:**
+    
+    1. **PPO** achieves perfect performance (500 reward) when optimized in both Local and Colab environments
+    2. **A2C** reaches perfect performance when optimized locally and shows strong improvement in Colab
+    3. **DQN** shows moderate performance improvement but doesn't reach perfect scores
+    4. **MB-PPO Skeleton** maintains constant random-policy level performance (~20) by design
+    
+    **Runtime Analysis:**
+    
+    1. Colab implementations run 45-50% faster than local due to hardware acceleration
+    2. Optimization improves runtime by 27-33% across all algorithms
+    3. PPO and A2C benefit from parallel environment vectorization
+    """)
     
     # Link to full comparison document
     st.markdown("For complete details, see [algorithm_comparison.md](./algorithm_comparison.md)")
