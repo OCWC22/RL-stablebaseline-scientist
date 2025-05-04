@@ -598,3 +598,28 @@ The visualization needed clearer context to help audiences understand the signif
 ### Future Work:
 - Add more quantitative metrics on sample efficiency once the full MB-PPO implementation is complete
 - Include learning curves from actual training runs with visualization tools
+## 05-03-2025 - Updated README with Project Overview
+
+### Files Updated:
+- `/Users/chen/Projects/RL-stablebaseline-scientist/README.md`: Completely redesigned README
+
+### Description:
+Restructured the README to provide a concise yet comprehensive overview of the project, including key features, documentation links, project structure, algorithm performance metrics, and setup instructions.
+
+### Reasoning:
+The README needed to be updated to reflect the current state of the project with all implemented features and documentation. A well-structured README makes the project more accessible to new users and provides a clear entry point to the codebase.
+
+### Trade-offs:
+- Simplified installation and usage instructions for clarity
+- Focused on high-level overview rather than detailed explanations (which are now in dedicated documents)
+- Prioritized the most important metrics and features
+
+### Considerations:
+- Used `uv` for package management as per user preferences
+- Included performance metrics table for quick reference
+- Added links to all major documentation files
+- Included Google Colab compatibility information
+
+### Future Work:
+- Update README with results from complete MB-PPO implementation when available
+- Add badges for test coverage and build status if CI/CD is implemented
